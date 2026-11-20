@@ -125,7 +125,7 @@ limit, `5` when a primary request is not found, and `1` for everything else.
 ## Documentation
 
 Longer walks and the full method list are in the
-[documentation](https://lupaxa-api-extractor-toolbox.github.io/github-extractor/).
+[documentation](https://github-extractor.thelupaxaproject.org/).
 
 <a href="https://github.com/the-lupaxa-project">
   <img src="https://raw.githubusercontent.com/the-lupaxa-project/brand-assets/master/logos/components/footer-for-child-orgs.svg" alt="The Lupaxa Project Footer" width="100%" />

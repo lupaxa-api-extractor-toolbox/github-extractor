@@ -302,12 +302,12 @@ def test_worker_requests_overlap(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr(requests, "Session", OverlappingSession)
     http = GitHubHttp("secret-token", 10, session=None)
-    errors: list[BaseException] = []
+    errors: list[Exception] = []
 
     def fetch() -> None:
         try:
             http.get_json("/repos/acme/widget/commits")
-        except BaseException as error:  # noqa: BLE001
+        except Exception as error:  # noqa: BLE001
             errors.append(error)
 
     first = threading.Thread(target=fetch)
