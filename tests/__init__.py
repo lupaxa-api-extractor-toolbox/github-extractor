@@ -1,0 +1,1 @@
+"""GitHub Extractor test suite."""
