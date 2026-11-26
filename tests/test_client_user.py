@@ -24,19 +24,13 @@ WIDGET = {"full_name": "acme/widget", "name": "widget", "owner": {"login": "ada"
 
 def _patch_worker_session(monkeypatch: pytest.MonkeyPatch, session: FakeSession) -> None:
     """Make per-thread Session() constructors return the shared fake session."""
-    monkeypatch.setattr(
-        "lupaxa.github_extractor.http.requests.Session",
-        lambda: cast(requests.Session, cast(Any, session)),
-    )
+    monkeypatch.setattr("lupaxa.github_extractor.http.requests.Session", lambda: cast(requests.Session, cast(Any, session)))
 
 
 def make_extractor(responses: list[FakeResponse]) -> tuple[GitHubExtractor, FakeSession]:
     """Build an extractor and expose its in-memory session."""
     session = FakeSession(responses)
-    extractor = GitHubExtractor(
-        TOKEN,
-        session=cast(requests.Session, cast(Any, session)),
-    )
+    extractor = GitHubExtractor(TOKEN, session=cast(requests.Session, cast(Any, session)))
     return extractor, session
 
 
@@ -46,10 +40,7 @@ def test_blank_token_is_rejected_without_requesting_github(token: str) -> None:
     session = FakeSession([])
 
     with pytest.raises(MissingTokenError):
-        GitHubExtractor(
-            token,
-            session=cast(requests.Session, cast(Any, session)),
-        )
+        GitHubExtractor(token, session=cast(requests.Session, cast(Any, session)))
 
     assert session.calls == []
 
@@ -75,11 +66,7 @@ def test_nan_timeout_is_rejected_without_requesting_github() -> None:
     session = FakeSession([])
 
     with pytest.raises(ValueError, match="timeout must be greater than zero"):
-        GitHubExtractor(
-            TOKEN,
-            timeout=float("nan"),
-            session=cast(requests.Session, cast(Any, session)),
-        )
+        GitHubExtractor(TOKEN, timeout=float("nan"), session=cast(requests.Session, cast(Any, session)))
 
     assert session.calls == []
 

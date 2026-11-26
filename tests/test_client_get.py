@@ -70,10 +70,7 @@ def test_get_rejects_a_foreign_target_without_requesting(path: str) -> None:
 def test_custom_api_root_is_prefixed(monkeypatch: pytest.MonkeyPatch) -> None:
     """Relative paths join the configured API root."""
     session = FakeSession([FakeResponse(200, {"login": "ada"})])
-    monkeypatch.setattr(
-        "lupaxa.github_extractor.http.requests.Session",
-        lambda: session,
-    )
+    monkeypatch.setattr("lupaxa.github_extractor.http.requests.Session", lambda: session)
     extractor = GitHubExtractor("secret-token", api_root="https://github.example/api/v3/")
 
     assert extractor.get("/user") == {"login": "ada"}

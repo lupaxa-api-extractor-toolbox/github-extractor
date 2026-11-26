@@ -26,9 +26,7 @@ class FakeExtractor:
     error: Exception | None = None
     payload: Any = None
 
-    # fmt: off
-    def __init__(self, token: str, timeout: float = 10, max_workers: int = 8, max_pages: int | None = None, *, session: object = None, api_root: str = "https://api.github.com") -> None:  # noqa: E501
-    # fmt: on
+    def __init__(self, token: str, timeout: float = 10, max_workers: int = 8, max_pages: int | None = None, *, session: object = None, api_root: str = "https://api.github.com") -> None:
         """Record client settings."""
         self.token = token
         self.timeout = timeout
@@ -79,20 +77,9 @@ class FakeExtractor:
         """Return fake repositories across organisations."""
         return self._result("organisation_repositories", **kwargs)
 
-    def repository(
-        self,
-        full_name: str,
-        *,
-        resources: Sequence[str] = (),
-        params: Mapping[str, Mapping[str, str]] | None = None,
-    ) -> dict[str, Any]:
+    def repository(self, full_name: str, *, resources: Sequence[str] = (), params: Mapping[str, Mapping[str, str]] | None = None) -> dict[str, Any]:
         """Record a one-repository call."""
-        return self._result(
-            "repository",
-            full_name=full_name,
-            resources=resources,
-            params=params,
-        )
+        return self._result("repository", full_name=full_name, resources=resources, params=params)
 
     def get(self, path: str) -> Any:
         """Return a fake generic read."""
@@ -195,11 +182,7 @@ def test_success_json_redacts_resolved_token(monkeypatch: pytest.MonkeyPatch, ca
     def leaky_token_information(self: FakeExtractor) -> dict[str, Any]:
         return {"method": "token_information", "token": secret}
 
-    monkeypatch.setattr(
-        FakeExtractor,
-        "token_information",
-        leaky_token_information,
-    )
+    monkeypatch.setattr(FakeExtractor, "token_information", leaky_token_information)
 
     assert cli.main(["token", "--token", secret]) == 0
     captured = capsys.readouterr()
@@ -214,11 +197,7 @@ def test_success_json_redacts_resolved_token(monkeypatch: pytest.MonkeyPatch, ca
 def test_success_redacts_only_the_resolved_explicit_token(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
     """Output keeps unrelated environment text while redacting the used token."""
     monkeypatch.setenv("GITHUB_TOKEN", "from-env")
-    monkeypatch.setattr(
-        FakeExtractor,
-        "token_information",
-        lambda self: {"used": "used-secret", "environment": "from-env"},
-    )
+    monkeypatch.setattr(FakeExtractor, "token_information", lambda self: {"used": "used-secret", "environment": "from-env"})
 
     assert cli.main(["--token", "used-secret", "token"]) == 0
     captured = capsys.readouterr()
@@ -276,11 +255,7 @@ def test_json_serialization_error_redacts_token(monkeypatch: pytest.MonkeyPatch,
     secret = "serialization-secret"
     payload = object()
     monkeypatch.setattr(FakeExtractor, "token_information", lambda self: payload)
-    monkeypatch.setattr(
-        cli.json,
-        "dumps",
-        lambda value, **kwargs: (_ for _ in ()).throw(TypeError(f"{secret} failed")),
-    )
+    monkeypatch.setattr(cli.json, "dumps", lambda value, **kwargs: (_ for _ in ()).throw(TypeError(f"{secret} failed")))
 
     assert cli.main(["token", "--token", secret]) == 1
     captured = capsys.readouterr()

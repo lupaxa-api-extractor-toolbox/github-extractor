@@ -40,16 +40,10 @@ class RoutingSession:
 
 def _patch_worker_session(monkeypatch: pytest.MonkeyPatch, session: RoutingSession) -> None:
     """Make per-thread Session() constructors return the shared routing session."""
-    monkeypatch.setattr(
-        "lupaxa.github_extractor.http.requests.Session",
-        lambda: cast(requests.Session, cast(Any, session)),
-    )
+    monkeypatch.setattr("lupaxa.github_extractor.http.requests.Session", lambda: cast(requests.Session, cast(Any, session)))
 
 
-def make_extractor(
-    monkeypatch: pytest.MonkeyPatch,
-    responses: dict[str, FakeResponse],
-) -> tuple[GitHubExtractor, RoutingSession]:
+def make_extractor(monkeypatch: pytest.MonkeyPatch, responses: dict[str, FakeResponse]) -> tuple[GitHubExtractor, RoutingSession]:
     """Build an extractor backed by URL-routed in-memory responses."""
     session = RoutingSession(responses)
     _patch_worker_session(monkeypatch, session)
@@ -118,10 +112,7 @@ def test_named_repository_result_is_a_model(monkeypatch: pytest.MonkeyPatch) -> 
 def test_repository_api_fields_are_not_attachments(monkeypatch: pytest.MonkeyPatch) -> None:
     """Unrequested forks and topic names remain ordinary repository JSON."""
     repository = {**WIDGET, "forks": 3, "topics": ["api"]}
-    extractor, session = make_extractor(
-        monkeypatch,
-        {f"{API_ROOT}/users/ada/repos": FakeResponse(200, [repository])},
-    )
+    extractor, session = make_extractor(monkeypatch, {f"{API_ROOT}/users/ada/repos": FakeResponse(200, [repository])})
 
     result = extractor.user_repositories(username="ada")
 

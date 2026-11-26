@@ -66,9 +66,9 @@ def _api_target(path: str, api_root: str) -> str:
 class GitHubExtractor:
     """Extract authenticated GitHub account data."""
 
-    # fmt: off
-    def __init__(self, token: str, timeout: float = DEFAULT_TIMEOUT, max_workers: int = DEFAULT_MAX_WORKERS, *, session: requests.Session | None = None, max_pages: int | None = None, api_root: str = API_ROOT) -> None:  # noqa: E501
-    # fmt: on
+    def __init__(
+        self, token: str, timeout: float = DEFAULT_TIMEOUT, max_workers: int = DEFAULT_MAX_WORKERS, *, session: requests.Session | None = None, max_pages: int | None = None, api_root: str = API_ROOT
+    ) -> None:
         """Validate client settings and prepare authenticated HTTP access."""
         if not token.strip():
             raise MissingTokenError
@@ -99,9 +99,9 @@ class GitHubExtractor:
             }
         )
 
-    # fmt: off
-    def organisations(self, *, include: Sequence[str] = (), ignore: Sequence[str] = (), slugs: bool = False, resources: Sequence[str] = (), params: Mapping[str, Mapping[str, str]] | None = None) -> list[Organisation] | list[str]:  # noqa: E501
-    # fmt: on
+    def organisations(
+        self, *, include: Sequence[str] = (), ignore: Sequence[str] = (), slugs: bool = False, resources: Sequence[str] = (), params: Mapping[str, Mapping[str, str]] | None = None
+    ) -> list[Organisation] | list[str]:
         """Return filtered organisations with optional related data."""
         resource_names = normalize_resources(resources, ORGANISATION_RESOURCES)
         normalized_params = _normalize_params(params, set(resource_names))
@@ -113,15 +113,25 @@ class GitHubExtractor:
         self._attach_organisation_resources(organisations, resource_names, normalized_params)
         return [organisation_from(row) for row in organisations]
 
-    # fmt: off
-    def organizations(self, *, include: Sequence[str] = (), ignore: Sequence[str] = (), slugs: bool = False, resources: Sequence[str] = (), params: Mapping[str, Mapping[str, str]] | None = None) -> list[Organisation] | list[str]:  # noqa: E501
-    # fmt: on
+    def organizations(
+        self, *, include: Sequence[str] = (), ignore: Sequence[str] = (), slugs: bool = False, resources: Sequence[str] = (), params: Mapping[str, Mapping[str, str]] | None = None
+    ) -> list[Organisation] | list[str]:
         """Return organisations using the US-spelling alias."""
         return self.organisations(include=include, ignore=ignore, slugs=slugs, resources=resources, params=params)
 
-    # fmt: off
-    def user_repositories(self, *, username: str | None = None, include: Sequence[str] = (), ignore: Sequence[str] = (), include_names: Sequence[str] = (), ignore_names: Sequence[str] = (), skip_private: bool = False, slugs: bool = False, resources: Sequence[str] = (), params: Mapping[str, Mapping[str, str]] | None = None) -> list[Repository] | list[str]:  # noqa: E501
-    # fmt: on
+    def user_repositories(
+        self,
+        *,
+        username: str | None = None,
+        include: Sequence[str] = (),
+        ignore: Sequence[str] = (),
+        include_names: Sequence[str] = (),
+        ignore_names: Sequence[str] = (),
+        skip_private: bool = False,
+        slugs: bool = False,
+        resources: Sequence[str] = (),
+        params: Mapping[str, Mapping[str, str]] | None = None,
+    ) -> list[Repository] | list[str]:
         """Return repositories owned by the requested or authenticated user."""
         resource_names = normalize_resources(resources, REPOSITORY_RESOURCES)
         normalized_params = _normalize_params(params, set(resource_names))
@@ -147,9 +157,19 @@ class GitHubExtractor:
             params=normalized_params,
         )
 
-    # fmt: off
-    def repositories_by_org(self, org: str, *, include: Sequence[str] = (), ignore: Sequence[str] = (), include_names: Sequence[str] = (), ignore_names: Sequence[str] = (), skip_private: bool = False, slugs: bool = False, resources: Sequence[str] = (), params: Mapping[str, Mapping[str, str]] | None = None) -> list[Repository] | list[str]:  # noqa: E501
-    # fmt: on
+    def repositories_by_org(
+        self,
+        org: str,
+        *,
+        include: Sequence[str] = (),
+        ignore: Sequence[str] = (),
+        include_names: Sequence[str] = (),
+        ignore_names: Sequence[str] = (),
+        skip_private: bool = False,
+        slugs: bool = False,
+        resources: Sequence[str] = (),
+        params: Mapping[str, Mapping[str, str]] | None = None,
+    ) -> list[Repository] | list[str]:
         """Return filtered repositories for one organisation."""
         resource_names = normalize_resources(resources, REPOSITORY_RESOURCES)
         normalized_params = _normalize_params(params, set(resource_names))
@@ -157,10 +177,7 @@ class GitHubExtractor:
         login = org.strip()
         if not login:
             raise MissingOrgNameError
-        rows = cast(
-            list[dict[str, Any]],
-            self._http.get_json(f"/orgs/{_encode_segment(login)}/repos"),
-        )
+        rows = cast(list[dict[str, Any]], self._http.get_json(f"/orgs/{_encode_segment(login)}/repos"))
         return self._repository_result(
             rows,
             include=include,
@@ -173,17 +190,23 @@ class GitHubExtractor:
             params=normalized_params,
         )
 
-    # fmt: off
-    def visible_repositories(self, *, include: Sequence[str] = (), ignore: Sequence[str] = (), include_names: Sequence[str] = (), ignore_names: Sequence[str] = (), skip_private: bool = False, slugs: bool = False, resources: Sequence[str] = (), params: Mapping[str, Mapping[str, str]] | None = None) -> list[Repository] | list[str]:  # noqa: E501
-    # fmt: on
+    def visible_repositories(
+        self,
+        *,
+        include: Sequence[str] = (),
+        ignore: Sequence[str] = (),
+        include_names: Sequence[str] = (),
+        ignore_names: Sequence[str] = (),
+        skip_private: bool = False,
+        slugs: bool = False,
+        resources: Sequence[str] = (),
+        params: Mapping[str, Mapping[str, str]] | None = None,
+    ) -> list[Repository] | list[str]:
         """Return every repository visible to the authenticated token."""
         resource_names = normalize_resources(resources, REPOSITORY_RESOURCES)
         normalized_params = _normalize_params(params, set(resource_names))
         addons = repository_addons(resource_names)
-        rows = cast(
-            list[dict[str, Any]],
-            self._http.get_json("/user/repos"),
-        )
+        rows = cast(list[dict[str, Any]], self._http.get_json("/user/repos"))
         return self._repository_result(
             rows,
             include=include,
@@ -196,42 +219,33 @@ class GitHubExtractor:
             params=normalized_params,
         )
 
-    # fmt: off
-    def organisation_repositories(self, *, include_orgs: Sequence[str] = (), ignore_orgs: Sequence[str] = (), include: Sequence[str] = (), ignore: Sequence[str] = (), include_names: Sequence[str] = (), ignore_names: Sequence[str] = (), skip_private: bool = False, slugs: bool = False, resources: Sequence[str] = (), params: Mapping[str, Mapping[str, str]] | None = None) -> list[Repository] | list[str]:  # noqa: E501
-    # fmt: on
+    def organisation_repositories(
+        self,
+        *,
+        include_orgs: Sequence[str] = (),
+        ignore_orgs: Sequence[str] = (),
+        include: Sequence[str] = (),
+        ignore: Sequence[str] = (),
+        include_names: Sequence[str] = (),
+        ignore_names: Sequence[str] = (),
+        skip_private: bool = False,
+        slugs: bool = False,
+        resources: Sequence[str] = (),
+        params: Mapping[str, Mapping[str, str]] | None = None,
+    ) -> list[Repository] | list[str]:
         """Return filtered repositories from each selected organisation."""
         resource_names = normalize_resources(resources, REPOSITORY_RESOURCES)
         normalized_params = _normalize_params(params, set(resource_names))
         addons = repository_addons(resource_names)
-        organisations = cast(
-            list[dict[str, Any]],
-            self._http.get_json("/user/orgs"),
-        )
+        organisations = cast(list[dict[str, Any]], self._http.get_json("/user/orgs"))
         rows: list[dict[str, Any]] = []
         for organisation in organisations:
             login = cast(str, organisation["login"])
             if selected(login, include_orgs, ignore_orgs):
-                rows.extend(
-                    cast(
-                        list[dict[str, Any]],
-                        self._http.get_json(f"/orgs/{_encode_segment(login)}/repos"),
-                    )
-                )
-        filtered = filter_repositories(
-            rows,
-            include=include,
-            ignore=ignore,
-            include_names=include_names,
-            ignore_names=ignore_names,
-            skip_private=skip_private,
-        )
+                rows.extend(cast(list[dict[str, Any]], self._http.get_json(f"/orgs/{_encode_segment(login)}/repos")))
+        filtered = filter_repositories(rows, include=include, ignore=ignore, include_names=include_names, ignore_names=ignore_names, skip_private=skip_private)
         unique = list({cast(str, row["full_name"]): row for row in reversed(filtered)}.values())
-        self._attach_repository_addons(
-            unique,
-            addons,
-            slugs=slugs,
-            params=normalized_params,
-        )
+        self._attach_repository_addons(unique, addons, slugs=slugs, params=normalized_params)
         return _format_repositories(unique, slugs=slugs)
 
     def repository(self, full_name: str, *, resources: Sequence[str] = (), params: Mapping[str, Mapping[str, str]] | None = None) -> Repository:
@@ -245,29 +259,25 @@ class GitHubExtractor:
         self._attach_repository_addons([row], repository_addons(names), slugs=False, params=queries)
         return repository_from(row)
 
-    # fmt: off
-    def _repository_result(self, rows: Sequence[dict[str, Any]], *, include: Sequence[str], ignore: Sequence[str], include_names: Sequence[str], ignore_names: Sequence[str], skip_private: bool, slugs: bool, addons: list[tuple[str, str, str | None]], params: dict[str, dict[str, str]]) -> list[Repository] | list[str]:  # noqa: E501
-    # fmt: on
+    def _repository_result(
+        self,
+        rows: Sequence[dict[str, Any]],
+        *,
+        include: Sequence[str],
+        ignore: Sequence[str],
+        include_names: Sequence[str],
+        ignore_names: Sequence[str],
+        skip_private: bool,
+        slugs: bool,
+        addons: list[tuple[str, str, str | None]],
+        params: dict[str, dict[str, str]],
+    ) -> list[Repository] | list[str]:
         """Filter repositories, attach requested add-ons, and format them."""
-        filtered = filter_repositories(
-            rows,
-            include=include,
-            ignore=ignore,
-            include_names=include_names,
-            ignore_names=ignore_names,
-            skip_private=skip_private,
-        )
+        filtered = filter_repositories(rows, include=include, ignore=ignore, include_names=include_names, ignore_names=ignore_names, skip_private=skip_private)
         self._attach_repository_addons(filtered, addons, slugs=slugs, params=params)
         return _format_repositories(filtered, slugs=slugs)
 
-    def _attach_repository_addons(
-        self,
-        repositories: list[dict[str, Any]],
-        addons: list[tuple[str, str, str | None]],
-        *,
-        slugs: bool,
-        params: dict[str, dict[str, str]],
-    ) -> None:
+    def _attach_repository_addons(self, repositories: list[dict[str, Any]], addons: list[tuple[str, str, str | None]], *, slugs: bool, params: dict[str, dict[str, str]]) -> None:
         """Attach requested add-ons concurrently to repository objects."""
         if not addons or slugs:
             return
@@ -309,19 +319,13 @@ class GitHubExtractor:
         for name in names:
             suffix = "audit-log" if name == "audit_log" else name
             try:
-                organisation[name] = self._get_addon(
-                    f"/orgs/{login}/{suffix}",
-                    None,
-                    params=_query_for(name, params),
-                )
+                organisation[name] = self._get_addon(f"/orgs/{login}/{suffix}", None, params=_query_for(name, params))
             except NotFoundError as error:
                 _record_resource_error(organisation, name, 404, str(error))
             except ResourceStatusError as error:
                 _record_resource_error(organisation, name, error.status, str(error))
 
-    # fmt: off
-    def authenticated_user(self, *, resources: Sequence[str] = (), repository_resources: Sequence[str] = (), params: Mapping[str, Mapping[str, str]] | None = None) -> User:  # noqa: E501
-    # fmt: on
+    def authenticated_user(self, *, resources: Sequence[str] = (), repository_resources: Sequence[str] = (), params: Mapping[str, Mapping[str, str]] | None = None) -> User:
         """Return the authenticated user with selected account and repository data."""
         if isinstance(repository_resources, str):
             raise ValueError("repository_resources must be a list of names")
@@ -336,15 +340,7 @@ class GitHubExtractor:
             self._add_user_extra(user, name, user_resource_path(name), repo_addons=addons, params=queries)
         return user_from(user)
 
-    def _add_user_extra(
-        self,
-        user: dict[str, Any],
-        stored_key: str,
-        path: str,
-        *,
-        repo_addons: list[tuple[str, str, str | None]],
-        params: dict[str, dict[str, str]],
-    ) -> None:
+    def _add_user_extra(self, user: dict[str, Any], stored_key: str, path: str, *, repo_addons: list[tuple[str, str, str | None]], params: dict[str, dict[str, str]]) -> None:
         """Store one requested user add-on, or an empty list when it fails."""
         try:
             user[stored_key] = self._http.get_json(path, params=_query_for(stored_key, params))

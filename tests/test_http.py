@@ -28,11 +28,7 @@ NEXT_URL = f"{API_ROOT}/user/repos?page=2"
 
 def make_http(session: FakeSession) -> GitHubHttp:
     """Build a client around an in-memory session."""
-    return GitHubHttp(
-        TOKEN,
-        timeout=4.5,
-        session=cast(requests.Session, cast(Any, session)),
-    )
+    return GitHubHttp(TOKEN, timeout=4.5, session=cast(requests.Session, cast(Any, session)))
 
 
 def test_max_pages_one_does_not_follow_next_link() -> None:
@@ -128,11 +124,7 @@ def test_invalid_retry_after_uses_reset(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setattr(time, "sleep", sleeps.append)
     session = FakeSession(
         [
-            FakeResponse(
-                403,
-                {"message": "API rate limit exceeded"},
-                {"Retry-After": "nope", "X-RateLimit-Reset": "1005"},
-            ),
+            FakeResponse(403, {"message": "API rate limit exceeded"}, {"Retry-After": "nope", "X-RateLimit-Reset": "1005"}),
             FakeResponse(200, []),
         ]
     )
@@ -209,11 +201,7 @@ def test_429_invalid_retry_after_uses_reset(monkeypatch: pytest.MonkeyPatch) -> 
     monkeypatch.setattr(time, "sleep", sleeps.append)
     session = FakeSession(
         [
-            FakeResponse(
-                429,
-                {"message": "secret"},
-                {"Retry-After": "nope", "X-RateLimit-Reset": "1005"},
-            ),
+            FakeResponse(429, {"message": "secret"}, {"Retry-After": "nope", "X-RateLimit-Reset": "1005"}),
             FakeResponse(200, [{"id": 1}]),
         ]
     )
@@ -329,11 +317,7 @@ def test_list_paging_sends_headers_and_concatenates_pages() -> None:
     """List responses follow the exact next URL and combine each page."""
     session = FakeSession(
         [
-            FakeResponse(
-                200,
-                [{"id": 1}],
-                {"Link": f'<{NEXT_URL}>; rel="next"'},
-            ),
+            FakeResponse(200, [{"id": 1}], {"Link": f'<{NEXT_URL}>; rel="next"'}),
             FakeResponse(200, [{"id": 2}]),
         ]
     )
@@ -361,15 +345,8 @@ def test_workflow_paging_merges_items_and_recalculates_total() -> None:
     next_url = f"{API_ROOT}/repos/a/b/actions/workflows?page=2"
     session = FakeSession(
         [
-            FakeResponse(
-                200,
-                {"total_count": 4, "workflows": [{"id": 1}]},
-                {"Link": f'<{next_url}>; rel="next"'},
-            ),
-            FakeResponse(
-                200,
-                {"total_count": 4, "workflows": [{"id": 2}, {"id": 3}]},
-            ),
+            FakeResponse(200, {"total_count": 4, "workflows": [{"id": 1}]}, {"Link": f'<{next_url}>; rel="next"'}),
+            FakeResponse(200, {"total_count": 4, "workflows": [{"id": 2}, {"id": 3}]}),
         ]
     )
 
@@ -388,11 +365,7 @@ def test_object_pages_concatenate_list_fields_and_keep_the_first_scalar() -> Non
     """List fields grow across pages. Scalars stay from page 1."""
     session = FakeSession(
         [
-            FakeResponse(
-                200,
-                {"total_count": 2, "items": [{"id": 1}]},
-                {"Link": f'<{API_ROOT}/search?page=2>; rel="next"'},
-            ),
+            FakeResponse(200, {"total_count": 2, "items": [{"id": 1}]}, {"Link": f'<{API_ROOT}/search?page=2>; rel="next"'}),
             FakeResponse(200, {"total_count": 99, "items": [{"id": 2}]}),
         ]
     )
@@ -412,11 +385,7 @@ def test_plain_object_returns_without_following_next_link() -> None:
     """A plain object is complete even when a Link header is present."""
     session = FakeSession(
         [
-            FakeResponse(
-                200,
-                {"Python": 12},
-                {"Link": f'<{API_ROOT}/unused>; rel="next"'},
-            ),
+            FakeResponse(200, {"Python": 12}, {"Link": f'<{API_ROOT}/unused>; rel="next"'}),
             FakeResponse(200, {"unused": True}),
         ]
     )
@@ -429,31 +398,14 @@ def test_plain_object_returns_without_following_next_link() -> None:
 
 def test_no_content_returns_empty_list_without_parsing_json() -> None:
     """A successful no-content response represents an empty addon list."""
-    session = FakeSession(
-        [
-            FakeResponse(
-                204,
-                None,
-                json_raises=AssertionError("204 JSON must not be parsed"),
-            )
-        ]
-    )
+    session = FakeSession([FakeResponse(204, None, json_raises=AssertionError("204 JSON must not be parsed"))])
 
     assert make_http(session).get_json("/repos/acme/empty/contributors") == []
 
 
 def test_success_with_invalid_json_raises_safe_request_error() -> None:
     """A non-empty successful response must contain valid JSON."""
-    session = FakeSession(
-        [
-            FakeResponse(
-                200,
-                None,
-                json_raises=ValueError(f"{TOKEN} is not JSON"),
-                content=b"not-json",
-            )
-        ]
-    )
+    session = FakeSession([FakeResponse(200, None, json_raises=ValueError(f"{TOKEN} is not JSON"), content=b"not-json")])
 
     with pytest.raises(RequestError) as exc_info:
         make_http(session).get_json("/user/repos")
@@ -491,13 +443,7 @@ def test_success_with_empty_body_other_than_204_raises_request_error() -> None:
         (500, {"message": "Server error"}, {}, RequestError),
     ],
 )
-def test_status_codes_raise_safe_errors(
-    monkeypatch: pytest.MonkeyPatch,
-    status: int,
-    payload: dict[str, str],
-    headers: dict[str, str],
-    error_type: type[Exception],
-) -> None:
+def test_status_codes_raise_safe_errors(monkeypatch: pytest.MonkeyPatch, status: int, payload: dict[str, str], headers: dict[str, str], error_type: type[Exception]) -> None:
     """HTTP failures map to domain errors without exposing the token."""
     monkeypatch.setattr(time, "sleep", lambda _seconds: None)
     responses = [FakeResponse(status, payload, headers)]
@@ -513,16 +459,7 @@ def test_status_codes_raise_safe_errors(
 
 def test_forbidden_403_with_non_json_body_raises_forbidden_error() -> None:
     """403 without rate-limit headers and invalid JSON maps to ForbiddenError."""
-    session = FakeSession(
-        [
-            FakeResponse(
-                403,
-                None,
-                {},
-                json_raises=ValueError("No JSON object could be decoded"),
-            )
-        ]
-    )
+    session = FakeSession([FakeResponse(403, None, {}, json_raises=ValueError("No JSON object could be decoded"))])
 
     with pytest.raises(ForbiddenError) as exc_info:
         make_http(session).get_response("/resource")

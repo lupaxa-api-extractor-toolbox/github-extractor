@@ -45,23 +45,14 @@ class RoutingSession:
 
 def _patch_worker_session(monkeypatch: pytest.MonkeyPatch, session: RoutingSession) -> None:
     """Make per-thread Session() constructors return the shared routing session."""
-    monkeypatch.setattr(
-        "lupaxa.github_extractor.http.requests.Session",
-        lambda: cast(requests.Session, cast(Any, session)),
-    )
+    monkeypatch.setattr("lupaxa.github_extractor.http.requests.Session", lambda: cast(requests.Session, cast(Any, session)))
 
 
-def make_extractor(
-    monkeypatch: pytest.MonkeyPatch,
-    responses: dict[str, FakeResponse],
-) -> tuple[GitHubExtractor, RoutingSession]:
+def make_extractor(monkeypatch: pytest.MonkeyPatch, responses: dict[str, FakeResponse]) -> tuple[GitHubExtractor, RoutingSession]:
     """Build an extractor backed by URL-routed in-memory responses."""
     session = RoutingSession(responses)
     _patch_worker_session(monkeypatch, session)
-    extractor = GitHubExtractor(
-        TOKEN,
-        session=cast(requests.Session, cast(Any, session)),
-    )
+    extractor = GitHubExtractor(TOKEN, session=cast(requests.Session, cast(Any, session)))
     return extractor, session
 
 
@@ -71,11 +62,7 @@ def test_empty_repository_list_does_not_construct_executor(monkeypatch: pytest.M
     def reject_executor(*args: object, **kwargs: object) -> None:
         raise AssertionError("ThreadPoolExecutor must not be constructed")
 
-    monkeypatch.setattr(
-        concurrent.futures,
-        "ThreadPoolExecutor",
-        reject_executor,
-    )
+    monkeypatch.setattr(concurrent.futures, "ThreadPoolExecutor", reject_executor)
     extractor, _ = make_extractor(monkeypatch, {f"{API_ROOT}/user/repos": FakeResponse(200, [])})
 
     assert extractor.visible_repositories(resources=("branches",)) == []
@@ -131,11 +118,7 @@ def test_addon_authentication_error_cancels_later_repository_request(monkeypatch
         }
     )
     _patch_worker_session(monkeypatch, session)
-    extractor = GitHubExtractor(
-        TOKEN,
-        max_workers=1,
-        session=cast(requests.Session, cast(Any, session)),
-    )
+    extractor = GitHubExtractor(TOKEN, max_workers=1, session=cast(requests.Session, cast(Any, session)))
 
     with pytest.raises(AuthenticationError):
         extractor.visible_repositories(resources=("branches",))
@@ -256,12 +239,7 @@ def test_slug_mode_skips_requested_addons(monkeypatch: pytest.MonkeyPatch) -> No
         ),
     ],
 )
-def test_every_repository_list_method_fetches_addons(
-    monkeypatch: pytest.MonkeyPatch,
-    method_name: str,
-    method_args: dict[str, str],
-    responses: dict[str, FakeResponse],
-) -> None:
+def test_every_repository_list_method_fetches_addons(monkeypatch: pytest.MonkeyPatch, method_name: str, method_args: dict[str, str], responses: dict[str, FakeResponse]) -> None:
     """Every repository list method attaches requested add-ons."""
     branches = [{"name": "main"}]
     responses[f"{API_ROOT}/repos/acme/widget/branches"] = FakeResponse(200, branches)

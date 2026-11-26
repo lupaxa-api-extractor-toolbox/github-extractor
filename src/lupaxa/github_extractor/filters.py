@@ -18,9 +18,7 @@ def selected(value: str, include: Sequence[str], ignore: Sequence[str]) -> bool:
     return any(fnmatch.fnmatch(folded, pattern.casefold()) for pattern in include)
 
 
-# fmt: off
-def keep_repo(repo: Mapping[str, Any], *, include: Sequence[str], ignore: Sequence[str], include_names: Sequence[str], ignore_names: Sequence[str], skip_private: bool) -> bool:  # noqa: E501
-# fmt: on
+def keep_repo(repo: Mapping[str, Any], *, include: Sequence[str], ignore: Sequence[str], include_names: Sequence[str], ignore_names: Sequence[str], skip_private: bool) -> bool:
     """Return whether a repository dict passes repository-level filters."""
     if skip_private and repo.get("private") is True:
         return False
@@ -29,19 +27,8 @@ def keep_repo(repo: Mapping[str, Any], *, include: Sequence[str], ignore: Sequen
     return selected(full_name, include, ignore) and selected(name, include_names, ignore_names)
 
 
-# fmt: off
-def filter_repositories(rows: Sequence[Mapping[str, Any]], *, include: Sequence[str], ignore: Sequence[str], include_names: Sequence[str], ignore_names: Sequence[str], skip_private: bool) -> list[dict[str, Any]]:  # noqa: E501
-# fmt: on
+def filter_repositories(
+    rows: Sequence[Mapping[str, Any]], *, include: Sequence[str], ignore: Sequence[str], include_names: Sequence[str], ignore_names: Sequence[str], skip_private: bool
+) -> list[dict[str, Any]]:
     """Copy repository rows that pass all repository filters."""
-    return [
-        dict(row)
-        for row in rows
-        if keep_repo(
-            row,
-            include=include,
-            ignore=ignore,
-            include_names=include_names,
-            ignore_names=ignore_names,
-            skip_private=skip_private,
-        )
-    ]
+    return [dict(row) for row in rows if keep_repo(row, include=include, ignore=ignore, include_names=include_names, ignore_names=ignore_names, skip_private=skip_private)]

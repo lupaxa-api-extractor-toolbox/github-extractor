@@ -58,9 +58,7 @@ def _same_api_host(url: str, api_root: str) -> bool:
 class GitHubHttp:
     """Send authenticated requests to the GitHub REST API."""
 
-    # fmt: off
-    def __init__(self, token: str, timeout: float, session: requests.Session | None = None, *, max_pages: int | None = None, api_root: str = API_ROOT) -> None:  # noqa: E501
-    # fmt: on
+    def __init__(self, token: str, timeout: float, session: requests.Session | None = None, *, max_pages: int | None = None, api_root: str = API_ROOT) -> None:
         """Store request settings and create a session when needed."""
         if max_pages is not None and (type(max_pages) is not int or max_pages <= 0):
             raise ValueError("max_pages must be a positive integer")

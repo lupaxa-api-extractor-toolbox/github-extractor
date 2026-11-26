@@ -21,10 +21,7 @@ TOKEN = "secret-token"
 def make_extractor(responses: list[FakeResponse]) -> tuple[GitHubExtractor, FakeSession]:
     """Build an extractor and expose its in-memory session."""
     session = FakeSession(responses)
-    extractor = GitHubExtractor(
-        TOKEN,
-        session=cast(requests.Session, cast(Any, session)),
-    )
+    extractor = GitHubExtractor(TOKEN, session=cast(requests.Session, cast(Any, session)))
     return extractor, session
 
 
@@ -143,10 +140,7 @@ def test_organisation_repositories_filter_orgs_repos_and_duplicates() -> None:
         ]
     )
 
-    result = extractor.organisation_repositories(
-        ignore_orgs=["skip*"],
-        include=["acme/keep*"],
-    )
+    result = extractor.organisation_repositories(ignore_orgs=["skip*"], include=["acme/keep*"])
 
     assert result[0].raw == duplicate
     assert [call["url"] for call in session.calls] == [

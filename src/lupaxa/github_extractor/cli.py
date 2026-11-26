@@ -36,16 +36,8 @@ def _shared_parser(*, suppress_defaults: bool = False) -> argparse.ArgumentParse
     parser = argparse.ArgumentParser(add_help=False)
     default = argparse.SUPPRESS if suppress_defaults else None
     parser.add_argument("--token", default=default)
-    parser.add_argument(
-        "--timeout",
-        type=float,
-        default=argparse.SUPPRESS if suppress_defaults else DEFAULT_TIMEOUT,
-    )
-    parser.add_argument(
-        "--max-workers",
-        type=int,
-        default=argparse.SUPPRESS if suppress_defaults else DEFAULT_MAX_WORKERS,
-    )
+    parser.add_argument("--timeout", type=float, default=argparse.SUPPRESS if suppress_defaults else DEFAULT_TIMEOUT)
+    parser.add_argument("--max-workers", type=int, default=argparse.SUPPRESS if suppress_defaults else DEFAULT_MAX_WORKERS)
     parser.add_argument("--max-pages", type=int, default=argparse.SUPPRESS if suppress_defaults else None)
     parser.add_argument("--api-root", default=argparse.SUPPRESS if suppress_defaults else API_ROOT)
     return parser
@@ -110,10 +102,7 @@ def _add_user_options(parser: argparse.ArgumentParser) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     """Build the complete command-line parser."""
-    parser = argparse.ArgumentParser(
-        prog="github-extractor",
-        parents=[_shared_parser()],
-    )
+    parser = argparse.ArgumentParser(prog="github-extractor", parents=[_shared_parser()])
     shared = _shared_parser(suppress_defaults=True)
     commands = parser.add_subparsers(dest="command", required=True)
 
@@ -147,18 +136,12 @@ def build_parser() -> argparse.ArgumentParser:
     repo_visible = repo_commands.add_parser("visible", parents=[shared])
     _add_repository_options(repo_visible)
 
-    repo_organisations = repo_commands.add_parser(
-        "organisations",
-        parents=[shared],
-    )
+    repo_organisations = repo_commands.add_parser("organisations", parents=[shared])
     _add_repository_options(repo_organisations)
     repo_organisations.add_argument("--include-org", action="append", default=[])
     repo_organisations.add_argument("--ignore-org", action="append", default=[])
 
-    repo_organizations = repo_commands.add_parser(
-        "organizations",
-        parents=[shared],
-    )
+    repo_organizations = repo_commands.add_parser("organizations", parents=[shared])
     _add_repository_options(repo_organizations)
     repo_organizations.add_argument("--include-org", action="append", default=[])
     repo_organizations.add_argument("--ignore-org", action="append", default=[])
@@ -228,22 +211,11 @@ def _dispatch_repositories(client: GitHubExtractor, args: argparse.Namespace) ->
     """Dispatch one repository subcommand."""
     options = _repository_options(args)
     handlers: dict[str, Callable[[], Any]] = {
-        "user": lambda: client.user_repositories(
-            username=args.username,
-            **options,
-        ),
+        "user": lambda: client.user_repositories(username=args.username, **options),
         "org": lambda: client.repositories_by_org(args.org, **options),
         "visible": lambda: client.visible_repositories(**options),
-        "organisations": lambda: client.organisation_repositories(
-            include_orgs=args.include_org,
-            ignore_orgs=args.ignore_org,
-            **options,
-        ),
-        "organizations": lambda: client.organisation_repositories(
-            include_orgs=args.include_org,
-            ignore_orgs=args.ignore_org,
-            **options,
-        ),
+        "organisations": lambda: client.organisation_repositories(include_orgs=args.include_org, ignore_orgs=args.ignore_org, **options),
+        "organizations": lambda: client.organisation_repositories(include_orgs=args.include_org, ignore_orgs=args.ignore_org, **options),
     }
     return handlers[args.repo_command]()
 
@@ -257,11 +229,7 @@ def dispatch(client: GitHubExtractor, args: argparse.Namespace) -> Any:  # noqa:
         "organisations": lambda: client.organisations(**_organisation_options(args)),
         "organizations": lambda: client.organizations(**_organisation_options(args)),
         "repos": lambda: _dispatch_repositories(client, args),
-        "repo": lambda: client.repository(
-            args.full_name,
-            resources=_selected_flag_names(args, REPOSITORY_RESOURCES),
-            params=_parse_params(args.param),
-        ),
+        "repo": lambda: client.repository(args.full_name, resources=_selected_flag_names(args, REPOSITORY_RESOURCES), params=_parse_params(args.param)),
     }
     return handlers[args.command]()
 
@@ -361,13 +329,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         token = resolve_token(args.token)
         _validate_client_settings(args.timeout, args.max_workers)
-        client = GitHubExtractor(
-            token,
-            timeout=args.timeout,
-            max_workers=args.max_workers,
-            max_pages=getattr(args, "max_pages", None),
-            api_root=getattr(args, "api_root", API_ROOT),
-        )
+        client = GitHubExtractor(token, timeout=args.timeout, max_workers=args.max_workers, max_pages=getattr(args, "max_pages", None), api_root=getattr(args, "api_root", API_ROOT))
         payload = dispatch(client, args)
         redaction = _redaction_tokens(token)
         try:

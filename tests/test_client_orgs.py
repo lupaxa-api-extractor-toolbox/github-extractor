@@ -19,10 +19,7 @@ def make_extractor(monkeypatch: pytest.MonkeyPatch, responses: list[FakeResponse
     """Build an extractor and expose its in-memory session."""
     session = FakeSession(responses)
     monkeypatch.setattr("lupaxa.github_extractor.http.requests.Session", lambda: cast(requests.Session, cast(Any, session)))
-    extractor = GitHubExtractor(
-        TOKEN,
-        session=cast(requests.Session, cast(Any, session)),
-    )
+    extractor = GitHubExtractor(TOKEN, session=cast(requests.Session, cast(Any, session)))
     return extractor, session
 
 
@@ -51,10 +48,7 @@ def test_organisations_apply_include_and_ignore_filters(monkeypatch: pytest.Monk
         ],
     )
 
-    result = extractor.organisations(
-        include=["acme*"],
-        ignore=["acme-old"],
-    )
+    result = extractor.organisations(include=["acme*"], ignore=["acme-old"])
 
     assert result[0].raw == {"login": "Acme"}
 

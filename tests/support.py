@@ -10,9 +10,7 @@ import requests
 class FakeResponse:
     """Minimal response with status, JSON, and headers."""
 
-    # fmt: off
-    def __init__(self, status_code: int, payload: Any, headers: dict[str, str] | None = None, *, json_raises: BaseException | None = None, content: bytes | None = None) -> None:  # noqa: E501
-    # fmt: on
+    def __init__(self, status_code: int, payload: Any, headers: dict[str, str] | None = None, *, json_raises: BaseException | None = None, content: bytes | None = None) -> None:
         """Store one canned response."""
         self.status_code = status_code
         self._payload = payload
