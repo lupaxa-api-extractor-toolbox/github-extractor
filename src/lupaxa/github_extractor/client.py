@@ -11,12 +11,7 @@ import requests
 
 from .constants import API_ROOT, DEFAULT_MAX_WORKERS, DEFAULT_TIMEOUT
 from .convert import organisation_from, repository_from, token_from, user_from
-from .errors import (
-    MissingOrgNameError,
-    MissingTokenError,
-    NotFoundError,
-    ResourceStatusError,
-)
+from .errors import MissingOrgNameError, MissingTokenError, NotFoundError, ResourceStatusError
 from .filters import filter_repositories, selected
 from .http import GitHubHttp, _normalise_api_root, _same_api_host
 from .models import Organisation, Repository, TokenInformation, User
@@ -146,15 +141,7 @@ class GitHubExtractor:
         rows = cast(list[dict[str, Any]], self._http.get_json(path))
         owned = [row for row in rows if _repository_owner(row).casefold() == login.casefold()]
         return self._repository_result(
-            owned,
-            include=include,
-            ignore=ignore,
-            include_names=include_names,
-            ignore_names=ignore_names,
-            skip_private=skip_private,
-            slugs=slugs,
-            addons=addons,
-            params=normalized_params,
+            owned, include=include, ignore=ignore, include_names=include_names, ignore_names=ignore_names, skip_private=skip_private, slugs=slugs, addons=addons, params=normalized_params
         )
 
     def repositories_by_org(
@@ -179,15 +166,7 @@ class GitHubExtractor:
             raise MissingOrgNameError
         rows = cast(list[dict[str, Any]], self._http.get_json(f"/orgs/{_encode_segment(login)}/repos"))
         return self._repository_result(
-            rows,
-            include=include,
-            ignore=ignore,
-            include_names=include_names,
-            ignore_names=ignore_names,
-            skip_private=skip_private,
-            slugs=slugs,
-            addons=addons,
-            params=normalized_params,
+            rows, include=include, ignore=ignore, include_names=include_names, ignore_names=ignore_names, skip_private=skip_private, slugs=slugs, addons=addons, params=normalized_params
         )
 
     def visible_repositories(
@@ -208,15 +187,7 @@ class GitHubExtractor:
         addons = repository_addons(resource_names)
         rows = cast(list[dict[str, Any]], self._http.get_json("/user/repos"))
         return self._repository_result(
-            rows,
-            include=include,
-            ignore=ignore,
-            include_names=include_names,
-            ignore_names=ignore_names,
-            skip_private=skip_private,
-            slugs=slugs,
-            addons=addons,
-            params=normalized_params,
+            rows, include=include, ignore=ignore, include_names=include_names, ignore_names=ignore_names, skip_private=skip_private, slugs=slugs, addons=addons, params=normalized_params
         )
 
     def organisation_repositories(

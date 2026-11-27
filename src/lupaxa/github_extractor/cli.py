@@ -15,14 +15,7 @@ from typing import Any
 from .client import GitHubExtractor
 from .constants import API_ROOT, DEFAULT_MAX_WORKERS, DEFAULT_TIMEOUT, GH_AUTH_TIMEOUT
 from .convert import to_jsonable
-from .errors import (
-    AuthenticationError,
-    ForbiddenError,
-    MissingOrgNameError,
-    MissingTokenError,
-    NotFoundError,
-    RateLimitExceededError,
-)
+from .errors import AuthenticationError, ForbiddenError, MissingOrgNameError, MissingTokenError, NotFoundError, RateLimitExceededError
 from .resources import ORGANISATION_RESOURCES, REPOSITORY_RESOURCES, USER_RESOURCES
 
 

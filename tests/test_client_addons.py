@@ -219,16 +219,8 @@ def test_slug_mode_skips_requested_addons(monkeypatch: pytest.MonkeyPatch) -> No
                 ),
             },
         ),
-        (
-            "repositories_by_org",
-            {"org": "acme"},
-            {f"{API_ROOT}/orgs/acme/repos": FakeResponse(200, [{"full_name": "acme/widget", "name": "widget"}])},
-        ),
-        (
-            "visible_repositories",
-            {},
-            {f"{API_ROOT}/user/repos": FakeResponse(200, [{"full_name": "acme/widget", "name": "widget"}])},
-        ),
+        ("repositories_by_org", {"org": "acme"}, {f"{API_ROOT}/orgs/acme/repos": FakeResponse(200, [{"full_name": "acme/widget", "name": "widget"}])}),
+        ("visible_repositories", {}, {f"{API_ROOT}/user/repos": FakeResponse(200, [{"full_name": "acme/widget", "name": "widget"}])}),
         (
             "organisation_repositories",
             {},

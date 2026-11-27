@@ -3,16 +3,7 @@
 from __future__ import annotations
 
 from .client import GitHubExtractor
-from .errors import (
-    AuthenticationError,
-    ForbiddenError,
-    MissingOrgNameError,
-    MissingTokenError,
-    NotFoundError,
-    RateLimitExceededError,
-    RequestError,
-    RequestTimeoutError,
-)
+from .errors import AuthenticationError, ForbiddenError, MissingOrgNameError, MissingTokenError, NotFoundError, RateLimitExceededError, RequestError, RequestTimeoutError
 from .models import (
     AuditEvent,
     Branch,

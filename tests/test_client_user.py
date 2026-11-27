@@ -7,12 +7,7 @@ from typing import Any, cast
 import pytest
 import requests
 
-from lupaxa.github_extractor import (
-    AuthenticationError,
-    GitHubExtractor,
-    MissingTokenError,
-    NotFoundError,
-)
+from lupaxa.github_extractor import AuthenticationError, GitHubExtractor, MissingTokenError, NotFoundError
 from lupaxa.github_extractor.constants import API_ROOT
 from lupaxa.github_extractor.models import Repository, ResourceError
 from tests.support import FakeResponse, FakeSession

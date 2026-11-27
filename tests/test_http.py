@@ -11,14 +11,7 @@ import requests
 
 from lupaxa.github_extractor import GitHubExtractor
 from lupaxa.github_extractor.constants import API_ROOT
-from lupaxa.github_extractor.errors import (
-    AuthenticationError,
-    ForbiddenError,
-    NotFoundError,
-    RateLimitExceededError,
-    RequestError,
-    RequestTimeoutError,
-)
+from lupaxa.github_extractor.errors import AuthenticationError, ForbiddenError, NotFoundError, RateLimitExceededError, RequestError, RequestTimeoutError
 from lupaxa.github_extractor.http import GitHubHttp
 from tests.support import FakeResponse, FakeSession, TimeoutSession
 
@@ -350,10 +343,7 @@ def test_workflow_paging_merges_items_and_recalculates_total() -> None:
         ]
     )
 
-    result = make_http(session).get_json(
-        "/repos/a/b/actions/workflows",
-        merge_key="workflows",
-    )
+    result = make_http(session).get_json("/repos/a/b/actions/workflows", merge_key="workflows")
 
     assert result == {
         "total_count": 3,
@@ -425,20 +415,10 @@ def test_success_with_empty_body_other_than_204_raises_request_error() -> None:
     ("status", "payload", "headers", "error_type"),
     [
         (401, {"message": "Bad credentials"}, {}, AuthenticationError),
-        (
-            403,
-            {"message": "Forbidden"},
-            {"X-RateLimit-Remaining": "0"},
-            RateLimitExceededError,
-        ),
+        (403, {"message": "Forbidden"}, {"X-RateLimit-Remaining": "0"}, RateLimitExceededError),
         (403, {"message": "API rate limit exceeded"}, {}, RateLimitExceededError),
         (403, {"message": "Forbidden"}, {"Retry-After": "1"}, RateLimitExceededError),
-        (
-            403,
-            {"message": "Resource not accessible by integration"},
-            {"X-RateLimit-Remaining": "50"},
-            ForbiddenError,
-        ),
+        (403, {"message": "Resource not accessible by integration"}, {"X-RateLimit-Remaining": "50"}, ForbiddenError),
         (404, {"message": "Not Found"}, {}, NotFoundError),
         (500, {"message": "Server error"}, {}, RequestError),
     ],

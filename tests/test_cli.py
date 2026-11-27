@@ -8,14 +8,7 @@ from typing import Any
 
 import pytest
 
-from lupaxa.github_extractor import (
-    AuthenticationError,
-    ForbiddenError,
-    NotFoundError,
-    RateLimitExceededError,
-    RequestError,
-    cli,
-)
+from lupaxa.github_extractor import AuthenticationError, ForbiddenError, NotFoundError, RateLimitExceededError, RequestError, cli
 from lupaxa.github_extractor.convert import repository_from
 
 

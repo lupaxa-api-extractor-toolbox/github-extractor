@@ -12,15 +12,7 @@ from urllib.parse import parse_qsl, urlsplit
 import requests
 
 from .constants import API_ACCEPT, API_ROOT, API_VERSION, PER_PAGE, USER_AGENT
-from .errors import (
-    AuthenticationError,
-    ForbiddenError,
-    NotFoundError,
-    RateLimitExceededError,
-    RequestError,
-    RequestTimeoutError,
-    ResourceStatusError,
-)
+from .errors import AuthenticationError, ForbiddenError, NotFoundError, RateLimitExceededError, RequestError, RequestTimeoutError, ResourceStatusError
 
 
 def _normalise_api_root(api_root: str) -> str:
@@ -108,12 +100,7 @@ class GitHubHttp:
         """Send one GET request and map transport and HTTP failures."""
         url = self._request_url(path)
         try:
-            response = self._session_for_request().get(
-                url,
-                headers=self._headers,
-                params=params,
-                timeout=self._timeout,
-            )
+            response = self._session_for_request().get(url, headers=self._headers, params=params, timeout=self._timeout)
         except requests.Timeout:
             raise RequestTimeoutError("Request timed out") from None
         except requests.RequestException:

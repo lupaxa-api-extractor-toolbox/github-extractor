@@ -7,11 +7,7 @@ from typing import Any, cast
 import pytest
 import requests
 
-from lupaxa.github_extractor import (
-    AuthenticationError,
-    GitHubExtractor,
-    MissingOrgNameError,
-)
+from lupaxa.github_extractor import AuthenticationError, GitHubExtractor, MissingOrgNameError
 from lupaxa.github_extractor.constants import API_ROOT
 from tests.support import FakeResponse, FakeSession
 
